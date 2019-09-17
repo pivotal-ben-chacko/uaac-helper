@@ -61,6 +61,8 @@ read -p "Select Credentials: " cIndex
 curl -k "https://${OPSMAN_API}/api/v0/deployed/products/${deployments[$dIndex]}/credentials/${credentials[$cIndex]}" -H "Authorization: Bearer $ACCESS_TOKEN" > output.json
 jq . output.json
 
+read -p "Get access token from UAA for credential? (Y/N): " confirm && [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || exit 1
+
 if [ -z "$UAA_PAS_API" ]; then
     echo "Please set UAA_PAS_API before running this tool!"; exit 1;
 fi
