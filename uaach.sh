@@ -51,7 +51,6 @@ done
 echo "-------------------"
 
 read -p "Select Deployment: " dIndex
-echo "Deployment: ${deployments[$index]}"
 curl -k "https://${OPSMAN_API}/api/v0/deployed/products/${deployments[$dIndex]}/credentials" -H "Authorization: Bearer $ACCESS_TOKEN" > output.json
 
 credentials=($(jq -r '.credentials[]'  output.json))
@@ -59,7 +58,7 @@ for i in "${!credentials[@]}"; do
         printf "%s) %s\n" "$i" "${credentials[$i]}"
 done
 read -p "Select Credentials: " cIndex
-curl -k "https://${OPSMAN_API}/api/v0/deployed/products/${deployments[$dindex]}/credentials/${credentials[$cIndex]}" -H "Authorization: Bearer $ACCESS_TOKEN" > output.json
+curl -k "https://${OPSMAN_API}/api/v0/deployed/products/${deployments[$dIndex]}/credentials/${credentials[$cIndex]}" -H "Authorization: Bearer $ACCESS_TOKEN" > output.json
 jq . output.json
 
 if [ -z "$UAA_PAS_API" ]; then
