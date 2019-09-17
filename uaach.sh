@@ -62,4 +62,16 @@ done
 read -p "Select Credentials: " cIndex
 curl -k "https://${CF_CARNIVORE_API}/api/v0/deployed/products/${deployments[$dindex]}/credentials/${credentials[$cIndex]}" -H "Authorization: Bearer $ACCESS_TOKEN" > output.json
 jq . output.json
-#uaac token client get loggregator -s Pr8v_p1GOTVv4QePyyZBIGTtPHulsRB9)
+
+if [ -z "$UAA_PAS_API" ]; then
+    echo "Please set UAA_PAS_API before running this tool!"; exit 1;
+fi
+
+ident=($(jq -r .credential.value.identity ./output.json))
+pass=($(jq -r .credential.value.password ./output.json))
+
+uaac target "$UAA_PAS_API" --skip-ssl-validation
+uaac token client get "$ident" -s "$pass"
+
+echo "-- Access Token --"
+echo $(uaac context | grep access_token | awk '{print $2}')i
