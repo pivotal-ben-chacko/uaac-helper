@@ -34,18 +34,17 @@ done
 set -- "${POSITIONAL[@]}" # restore positional parameters
 
 
-if [ -z "$CF_CARNIVORE_API" ]; then
-    echo "Please set CF_CARNIVORE_API before running this tool"; exit 1;
+if [ -z "$OPSMAN_API" ]; then
+    echo "Please set OPSMAN_API before running this tool"; exit 1;
 fi
 
-uaac target "$CF_CARNIVORE_API/uaa" --skip-ssl-validation
+uaac target "$OPSMAN_API/uaa" --skip-ssl-validation
 uaac token owner get opsman admin -s ""
 
 export ACCESS_TOKEN=$(uaac context | grep access_token | awk '{print $2}')
-curl -k "https://${CF_CARNIVORE_API}/api/v0/deployed/products" -H "Authorization: Bearer $ACCESS_TOKEN" > output.json
-deployments=($(jq -r '.[].installation_name'  output.json))
+curl -k "https://${OPSMAN_API}/api/v0/deployed/products" -H "Authorization: Bearer $ACCESS_TOKEN" > output.json
 
-echo "--- Deployments ---"
+deployments=($(jq -r '.[].installation_name'  output.json))
 for i in "${!deployments[@]}"; do 
 	printf "%s) %s\n" "$i" "${deployments[$i]}"
 done
@@ -53,14 +52,14 @@ echo "-------------------"
 
 read -p "Select Deployment: " dIndex
 echo "Deployment: ${deployments[$index]}"
-curl -k "https://${CF_CARNIVORE_API}/api/v0/deployed/products/${deployments[$dIndex]}/credentials" -H "Authorization: Bearer $ACCESS_TOKEN" > output.json
+curl -k "https://${OPSMAN_API}/api/v0/deployed/products/${deployments[$dIndex]}/credentials" -H "Authorization: Bearer $ACCESS_TOKEN" > output.json
 
 credentials=($(jq -r '.credentials[]'  output.json))
 for i in "${!credentials[@]}"; do
         printf "%s) %s\n" "$i" "${credentials[$i]}"
 done
 read -p "Select Credentials: " cIndex
-curl -k "https://${CF_CARNIVORE_API}/api/v0/deployed/products/${deployments[$dindex]}/credentials/${credentials[$cIndex]}" -H "Authorization: Bearer $ACCESS_TOKEN" > output.json
+curl -k "https://${OPSMAN_API}/api/v0/deployed/products/${deployments[$dindex]}/credentials/${credentials[$cIndex]}" -H "Authorization: Bearer $ACCESS_TOKEN" > output.json
 jq . output.json
 
 if [ -z "$UAA_PAS_API" ]; then
